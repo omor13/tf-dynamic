@@ -13,8 +13,12 @@ resource "aws_instance" "webserver" {
     ami = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
     subnet_id = aws_subnet.testsubnet.id
-
     vpc_security_group_ids = [aws_security_group.test-sg.id]
+    lifecycle {
+      create_before_destroy = true
+      prevent_destroy = false
+      ignore_changes = [ebs_block_device]
+    }
 
     tags = {
       Name = "Webserver-${count.index+1}"
@@ -22,11 +26,11 @@ resource "aws_instance" "webserver" {
 }
 
 resource "aws_vpc" "testvpc" {
-    cidr_block = "10.0.1.0/24"
+    cidr_block = "10.0.0.0/24"
 }
 
 resource "aws_subnet" "testsubnet" {
-  cidr_block = "10.0.1.0/27"
+  cidr_block = "10.0.0.0/27"
   vpc_id = aws_vpc.testvpc.id
 }
 
